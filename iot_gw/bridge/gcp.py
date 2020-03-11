@@ -3,6 +3,7 @@ import datetime
 import ssl
 import paho.mqtt.client as mqtt
 import logging
+import time
 
 """
 Bridge client for Google Cloud Platform
@@ -65,8 +66,8 @@ class MqttBridge:
     
     def connect(self):
         self.__client.connect_async(
-            self.config['bridge_hostname'],
-            self.config['bridge_port']
+            self.__config['bridge_hostname'],
+            self.__config['bridge_port']
         )
         self.__client.loop_start()
         self.__wait_for_connection(timeout=5)

@@ -1,5 +1,6 @@
 import unittest
 import jwt
+import logging
 from iot_gw.bridge.gcp import create_jwt_token, create_mqtt_client, MqttBridge
 
 mqtt_bridge_config={
@@ -33,13 +34,16 @@ class TestGcpBridge(unittest.TestCase):
             'europe-west-1',
             'registry_id',
             'device_id',
-            './tests/test.key',
+            './tests/gw.key',
             './mqtt.googleapis.com.pem')
         self.assertIsNotNone(client)
 
     def test_connect_mqtt_bridge(self):
         bridge = MqttBridge(mqtt_bridge_config)
-        bridge.connect()
+        try:
+            bridge.connect()
+        except RuntimeError:
+            self.fail()
         self.assertTrue(bridge.is_connected)
 
 
