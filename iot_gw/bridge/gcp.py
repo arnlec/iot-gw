@@ -93,13 +93,13 @@ class MqttBridge:
             raise RuntimeError('Could not connect to MQTT bridge.')
         logging.debug("wait_for_connection terminated %s" % self.is_connected)
         
-    def __on_connect(self):
+    def __on_connect(self,client,userdata,flags,rc):
         logging.debug("MQTT bridge connection is up")
         self.__is_connected=True
         self.__client.subscribe('/devices/{}/config'.format(self.__config['device_id']), qos=1)
         self.__client.subscribe('/devices/{}/errors'.format(self.__config['device_id']), qos=0)
 
-    def __on_disconnect(self):
+    def __on_disconnect(self,client,userdate,rc):
         logging.debug("MQTT bridge connection is down")
         self.__is_connected=False
 
