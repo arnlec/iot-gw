@@ -8,7 +8,7 @@ mqtt_bridge_config={
     'region': 'europe-west1',
     'registry_id': 'mylab',
     'device_id': 'gw-dev',
-    'private_key_file': './tests/gw.key',
+    'private_key_file': './tests/gw_private.pem',
     'ca_certs_file': './mqtt.googleapis.com.pem',
     'bridge_hostname': 'mqtt.googleapis.com',
     'bridge_port': 443
@@ -16,13 +16,13 @@ mqtt_bridge_config={
 
 class TestGcpBridge(unittest.TestCase):
     
-    def setUp(self):
-        logging.basicConfig(level=logging.DEBUG)
+    # def setUp(self):
+    #     logging.basicConfig(level=logging.DEBUG)
         
     def test_create_jwt_token(self):
-        token=create_jwt_token('project_id','./tests/gw.key')
+        token=create_jwt_token('project_id','./tests/gw_private.pem')
         self.assertIsNotNone(token)
-        with open('./tests/gw.pub', 'r') as f:
+        with open('./tests/gw_public.pem', 'r') as f:
             public_key = f.read()  
         decodedToken=jwt.decode(token,public_key,algorithms='RS256',options={'verify_aud': False})
         self.assertEqual(decodedToken['aud'],'project_id')
@@ -34,7 +34,7 @@ class TestGcpBridge(unittest.TestCase):
             'europe-west-1',
             'registry_id',
             'device_id',
-            './tests/gw.key',
+            './tests/gw_private.pem',
             './mqtt.googleapis.com.pem')
         self.assertIsNotNone(client)
 
@@ -44,7 +44,7 @@ class TestGcpBridge(unittest.TestCase):
             bridge.connect()
         except RuntimeError:
             self.fail()
-        self.assertTrue(bridge.is_connected)
+        self.assertTrue(bridge.is_connected())
 
 
 

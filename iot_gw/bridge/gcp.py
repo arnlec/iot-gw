@@ -82,6 +82,9 @@ class MqttBridge:
         result.wait_for_publish()
         return result.is_published()
 
+    def is_connected(self):
+        return self.__is_connected
+
     def __wait_for_connection(self, timeout=5):
         total_time = 0
         while not self.__is_connected and total_time < timeout:
