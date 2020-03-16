@@ -11,6 +11,12 @@ config={
         'ca_certs_file': './mqtt.googleapis.com.pem',
         'bridge_hostname': 'mqtt.googleapis.com',
         'bridge_port': 443
+    },
+    'proxy':{
+        'http':{
+            'host':'0.0.0.0',
+            'port':'8080'
+        }
     }
 }
 
