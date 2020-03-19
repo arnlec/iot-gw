@@ -1,0 +1,13 @@
+{
+    "tasks": [
+        {
+            "type": "che",
+            "label": "run",
+            "command": "python hello-world.py",
+            "target": {
+                "workingDir": "${CHE_PROJECTS_ROOT}/python-hello-world",
+                "component": "python"
+            }
+        }
+    ]
+}
