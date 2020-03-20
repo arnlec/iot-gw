@@ -8,7 +8,7 @@ config={
         'registry_id': 'mylab',
         'device_id': 'gw-dev',
         'private_key_file': './tests/gw_private.pem',
-        'ca_certs_file': './mqtt.googleapis.com.pem',
+        'ca_certs_file': './tests/mqtt.googleapis.com.pem',
         'bridge_hostname': 'mqtt.googleapis.com',
         'bridge_port': 443
     },
