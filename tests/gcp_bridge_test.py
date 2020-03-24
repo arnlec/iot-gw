@@ -4,9 +4,9 @@ import logging
 from iot_gw.bridge.gcp import create_jwt_token, create_mqtt_client, MqttBridge
 import os 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-gw_private_key = os.path.join(dir_path,'gw_private.pem')
-gw_public_key = os.path.join(dir_path,'gw_public.pem')
-ca_certs = os.path.join(dir_path, 'mqtt.googleapis.com.pem')
+gw_private_key = os.path.join(dir_path,'data/gw_private.pem')
+gw_public_key = os.path.join(dir_path,'data/gw_public.pem')
+ca_certs = os.path.join(dir_path, 'data/mqtt.googleapis.com.pem')
 
 mqtt_bridge_config={
     'project_id': 'iot-dev-260617',
