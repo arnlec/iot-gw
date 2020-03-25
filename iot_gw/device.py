@@ -60,7 +60,6 @@ class Device:
                 crypto_serialization.PrivateFormat.PKCS8,
                 crypto_serialization.NoEncryption()
             )
-            private_key_file.close()
         with open(os.path.join(path,'{}_public.pem'.format(self.device_id)),'rb') as public_key_file:
             self.__public_key = crypto_serialization.load_pem_public_key(
                 public_key_file.read(),
@@ -69,13 +68,11 @@ class Device:
                 crypto_serialization.Encoding.PEM,
                 crypto_serialization.PublicFormat.PKCS1
             ) 
-            public_key_file.close()
         
 
     def __dump(self,data,file):
         with open(file,'wb') as output:
             output.write(data)
-            output.close()
     
 
     def __token_is_available(self):

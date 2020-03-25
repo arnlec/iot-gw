@@ -96,11 +96,8 @@ class TestDevice(unittest.TestCase):
         )
         with open(os.path.join(temp_dir,'test_fetch_private.pem'),'wb') as private_key_file:
             private_key_file.write(private_key)
-            private_key_file.close()
         with open(os.path.join(temp_dir,'test_fetch_public.pem'),'wb') as public_key_file:
             public_key_file.write(public_key)
-            public_key_file.close()
-    
         device = Device('test_fetch')
         device.fetch(temp_dir)
         self.assertEqual(public_key,device.get_public_key())
