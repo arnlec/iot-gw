@@ -11,20 +11,7 @@ class Device:
         self.device_id = device_id
         self.__token = None
         if private_key == None or public_key ==None:
-            key = rsa.generate_private_key(
-                backend=crypto_default_backend(),
-                public_exponent=65537,
-                key_size=2048
-            )
-            self.__public_key = key.public_key().public_bytes(
-                crypto_serialization.Encoding.PEM,
-                crypto_serialization.PublicFormat.PKCS1
-            )
-            self.__private_key = key.private_bytes(
-                crypto_serialization.Encoding.PEM,
-                crypto_serialization.PrivateFormat.PKCS8,
-                crypto_serialization.NoEncryption()
-            )
+            self.generate_key_pair()
         else:
             self.__public_key = public_key
             self.__private_key = private_key
@@ -69,7 +56,22 @@ class Device:
                 crypto_serialization.PublicFormat.PKCS1
             ) 
         
-
+    def generate_key_pair(self):
+        key = rsa.generate_private_key(
+            backend=crypto_default_backend(),
+            public_exponent=65537,
+            key_size=2048
+        )
+        self.__public_key = key.public_key().public_bytes(
+            crypto_serialization.Encoding.PEM,
+            crypto_serialization.PublicFormat.PKCS1
+        )
+        self.__private_key = key.private_bytes(
+            crypto_serialization.Encoding.PEM,
+            crypto_serialization.PrivateFormat.PKCS8,
+            crypto_serialization.NoEncryption()
+        )
+        
     def __dump(self,data,file):
         with open(file,'wb') as output:
             output.write(data)
