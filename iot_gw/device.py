@@ -1,14 +1,21 @@
 import datetime
 import os
+import enum
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
 import jwt
 
+class DeviceStatus(enum.Enum):
+    UNKNOWN = 0
+    REGISTERED = 1
+    ATTACHED = 2
+
 
 class Device:
     def __init__(self,device_id,key_folder=None):
         self.device_id = device_id
+        self.status = DeviceStatus.UNKNOWN
         self.__token = None
         if not self.__key_pair_is_available(key_folder):
             self.__generate_key_pair()
@@ -109,6 +116,7 @@ class Device:
             self.__token,
             self.get_private_key(),
             algorithm='RS256')
+
 
 
 
