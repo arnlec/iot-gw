@@ -7,14 +7,13 @@ import jwt
 
 
 class Device:
-    def __init__(self,device_id,private_key=None,public_key=None):
+    def __init__(self,device_id,key_folder=None):
         self.device_id = device_id
         self.__token = None
-        if private_key == None or public_key ==None:
-            self.generate_key_pair()
+        if not self.__key_pair_is_available(key_folder):
+            self.__generate_key_pair()
         else:
-            self.__public_key = public_key
-            self.__private_key = private_key
+            self.fetch(key_folder)
 
     def get_public_key(self):
         return self.__public_key
@@ -29,15 +28,16 @@ class Device:
 
     def dump(self, path):
         self.__dump(
-            self.get_private_key(),os.path.join(path,'{}_private.pem'.format(self.device_id))
+            self.get_private_key(),
+            self.__build_private_key_path(path)
         )
         self.__dump(
-            self.get_public_key(),os.path.join(path,'{}_public.pem'.format(self.device_id))
+            self.get_public_key(),
+            self.__build_public_key_path(path)
         )
-        pass
 
     def fetch(self, path):
-        with open(os.path.join(path,'{}_private.pem'.format(self.device_id)),'rb') as private_key_file:
+        with open(self.__build_private_key_path(path),'rb') as private_key_file:
             self.__private_key = crypto_serialization.load_pem_private_key(
                 private_key_file.read(),
                 password=None,
@@ -47,7 +47,7 @@ class Device:
                 crypto_serialization.PrivateFormat.PKCS8,
                 crypto_serialization.NoEncryption()
             )
-        with open(os.path.join(path,'{}_public.pem'.format(self.device_id)),'rb') as public_key_file:
+        with open(self.__build_public_key_path(path),'rb') as public_key_file:
             self.__public_key = crypto_serialization.load_pem_public_key(
                 public_key_file.read(),
                 backend=crypto_default_backend()
@@ -56,7 +56,7 @@ class Device:
                 crypto_serialization.PublicFormat.PKCS1
             ) 
         
-    def generate_key_pair(self):
+    def __generate_key_pair(self):
         key = rsa.generate_private_key(
             backend=crypto_default_backend(),
             public_exponent=65537,
@@ -71,11 +71,24 @@ class Device:
             crypto_serialization.PrivateFormat.PKCS8,
             crypto_serialization.NoEncryption()
         )
+
+    def __build_private_key_path(self,path):
+        return os.path.join(path,'{}_private.pem'.format(self.device_id))
+
+    def __build_public_key_path(self,path):
+        return os.path.join(path,'{}_public.pem'.format(self.device_id))
         
     def __dump(self,data,file):
         with open(file,'wb') as output:
             output.write(data)
     
+    def __key_pair_is_available(self,path):
+        if path is None:
+            return False
+        else:
+            public_key_path = self.__build_public_key_path(path)
+            private_key_path = self.__build_private_key_path(path)
+            return os.path.isfile(self.__build_public_key_path(path)) and os.path.isfile(private_key_path)
 
     def __token_is_available(self):
         now = datetime.datetime.now()

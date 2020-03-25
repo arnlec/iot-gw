@@ -38,6 +38,7 @@ class TestDevice(unittest.TestCase):
         token2 = device.get_token('project_id')
         self.assertEqual(token,token2)
         
+    
     def test_get_token_expired(self):
         device = Device('device_id')
         token = device.get_token('project_id',minutes=0,seconds=1)
@@ -53,15 +54,19 @@ class TestDevice(unittest.TestCase):
             key_size=2048
         )
         public_key = key.public_key().public_bytes(
-            crypto_serialization.Encoding.OpenSSH,
-            crypto_serialization.PublicFormat.OpenSSH
+            crypto_serialization.Encoding.PEM,
+            crypto_serialization.PublicFormat.PKCS1
         )
         private_key = key.private_bytes(
             crypto_serialization.Encoding.PEM,
             crypto_serialization.PrivateFormat.PKCS8,
             crypto_serialization.NoEncryption()
         )
-        device = Device('device_id',private_key,public_key)
+        with open(os.path.join(temp_dir,'project_id_private.pem'),'wb') as private_key_file:
+            private_key_file.write(private_key)
+        with open(os.path.join(temp_dir,'project_id_public.pem'),'wb') as public_key_file:
+            public_key_file.write(public_key)
+        device = Device('project_id',temp_dir)
         token = device.get_token('project_id',1)
         self.assertIsNotNone(token)
         decodedToken = jwt.decode(
