@@ -72,6 +72,12 @@ class MqttBridge:
         self.__client.loop_start()
         self.__wait_for_connection(timeout=5)
 
+    def attach(self,device_id,jwt_token=None):
+        if jwt_token is None:
+            return self.publish(None,device_id,'attach',1)
+        else:
+            return self.publish(jwt_token,device_id,'attach',1)
+
     def publish(self,payload,device_id=None,type='events',qos=0):
         if not self.__is_connected:
             self.connect()

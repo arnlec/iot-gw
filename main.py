@@ -2,6 +2,9 @@ from iot_gw.gateway import Gateway
 import logging
 
 config={
+    'storage':{
+        'key_pair_path' : './tests/data'
+    },
     'bridge':{
         'project_id': 'iot-dev-260617',
         'region': 'europe-west1',

@@ -118,6 +118,13 @@ class Device:
             algorithm='RS256')
 
 
+class DeviceManager:
+
+    def __init__(self,config):
+        self.__key_pair_path = config['key_pair_path']
+
+    def get_device(self,device_id):
+        return Device(device_id,self.__key_pair_path)
 
 
     

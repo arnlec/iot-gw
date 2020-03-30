@@ -1,25 +1,20 @@
 from .bridge.gcp import MqttBridge
-from .proxy.http import proxy
+from .device import DeviceManager
 import time
 
 
 class Gateway:
     def __init__(self,config):
-        self.__config=config
-        self.__bridge=MqttBridge(self.__config['bridge'])
-        proxy.on_attach=self.attach
-        proxy.on_event=self.publish_event
-        proxy.on_state=self.publish_state
+        self.__config = config
+        self.__bridge = MqttBridge(self.__config['bridge'])
+        self.__device_manager = DeviceManager(self.config['storage'])
 
     def run(self):
         self.__bridge.connect()
-        proxy.run(
-            self.__config['proxy']['http']['host'],
-            self.__config['proxy']['http']['port']
-            )
     
     def attach(self,device_id):
-        pass
+        device = self.__device_manager.get_device(device_id)
+        self.__bridge.attach(device_id,device.get_token())
 
     def publish_event(self,device_id,event):
         pass
