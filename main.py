@@ -15,7 +15,7 @@ config={
         'bridge_hostname': 'mqtt.googleapis.com',
         'bridge_port': 443
     },
-    'proxy':{
+    'server':{
         'http':{
             'host':'0.0.0.0',
             'port':'8080'
