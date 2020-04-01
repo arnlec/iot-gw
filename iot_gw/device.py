@@ -22,6 +22,12 @@ class Device:
         else:
             self.fetch(key_folder)
 
+    def toJson(self):
+        return {
+            "device_id" : self.device_id,
+            "public_key" : self.__public_key.decode('utf-8')
+        }
+
     def get_public_key(self):
         return self.__public_key
 

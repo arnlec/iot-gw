@@ -1,4 +1,4 @@
-from iot_gw.gateway import Gateway
+from iot_gw.gateway import run as run_gateway
 import logging
 
 config={
@@ -24,4 +24,4 @@ config={
 }
 
 logging.basicConfig(level=logging.DEBUG)
-Gateway(config).run()
+run_gateway(config)
