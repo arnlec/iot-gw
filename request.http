@@ -1,0 +1,14 @@
+GET http://localhost:8080/device/dev-1
+
+###
+
+POST http://localhost:8080/device/dev-1/attach
+
+###
+
+POST http://localhost:8080/device/dev-1/state
+Content-Type: application/json
+
+{
+    "status" : "OK"
+}

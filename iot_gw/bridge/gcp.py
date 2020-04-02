@@ -1,9 +1,11 @@
-import jwt
+import time
 import datetime
+import json
+import jwt
 import ssl
 import paho.mqtt.client as mqtt
 import logging
-import time
+
 
 """
 Bridge client for Google Cloud Platform
@@ -73,11 +75,11 @@ class MqttBridge:
         self.__wait_for_connection(timeout=5)
 
     def attach(self,device_id,jwt_token=None):
-        if jwt_token is None:
-            return self.publish(None,device_id,'attach',1)
-        else:
-            return self.publish(jwt_token,device_id,'attach',1)
-
+        print(jwt_token)
+        print(jwt_token.decode('utf-8'))
+        payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
+        return self.publish(payload,device_id,'attach',1)
+            
     def publish(self,payload,device_id=None,type='events',qos=0):
         if not self.__is_connected:
             self.connect()

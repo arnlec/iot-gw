@@ -13,3 +13,5 @@ IoT gateway is a device that connects its client devices to a IoT platforms.
 @endditaa
 ```
 
+
+
