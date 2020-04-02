@@ -4,7 +4,6 @@ from flask import Flask, request
 from .bridge.gcp import MqttBridge
 from .device import DeviceManager
 
-
 app = Flask(__name__)
 bridge = None
 device_manager = None
@@ -30,6 +29,10 @@ def publish_state(device_id):
     response = bridge.publish(json.dumps(request.json),device_id,'state')
     return 'OK' if response is True else 'KO' 
 
+@app.route('/device/<device_id>/event', methods = ['POST'])
+def publish_event(device_id):
+    response = bridge.publish(json.dumps(request.json),device_id)
+    return 'OK' if response is True else 'KO'
 
 def run(config):
     global bridge, device_manager, configuration
