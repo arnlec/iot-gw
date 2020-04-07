@@ -1,3 +1,7 @@
 **/__pycache__
 tests/data/*_private.pem
 .pyenv
+.eggs
+build
+dist
+*.egg-info

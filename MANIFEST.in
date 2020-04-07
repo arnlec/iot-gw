@@ -1,0 +1,7 @@
+exclude .vscode
+exclude docs
+exclude tests
+exclude .gitignore
+exclude main.py
+exclude request.http
+exclude requirements.txt
