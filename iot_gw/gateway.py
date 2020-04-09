@@ -40,10 +40,7 @@ def run(config):
     bridge = MqttBridge(config['bridge'])
     device_manager = DeviceManager(config['storage'])
     bridge.connect()
-    app.run(
-        config['server']['http']['host'],
-        config['server']['http']['port']
-    )
+    
     
 
 def publish_event(device_id,event):

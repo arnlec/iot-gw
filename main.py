@@ -1,4 +1,5 @@
 from iot_gw.gateway import run as run_gateway
+from iot_gw.gateway import app as server
 import logging
 
 config={
@@ -25,3 +26,7 @@ config={
 
 logging.basicConfig(level=logging.DEBUG)
 run_gateway(config)
+server.run(
+    config['server']['http']['host'],
+    config['server']['http']['port']
+)
