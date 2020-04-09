@@ -3,9 +3,17 @@ import setuptools
 with open('readme.md','r') as fh:
     readme = fh.read()
 
+def local_scheme(version):
+    return version.format_choice("","")
+
+
 setuptools.setup(
     name="iot_gw",
-    use_scm_version={"root": ".", "relative_to": __file__},
+    use_scm_version={
+        "root": ".", 
+        "relative_to": __file__,
+        "local_scheme": local_scheme
+    },
     author="A. LE CANN",
     author_email="arnaud@lecann.com",
     description="IoT gateway",
