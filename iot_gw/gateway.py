@@ -1,5 +1,8 @@
 import time
 import json
+import io
+import os
+import yaml
 from flask import Flask, request
 from .bridge.gcp import MqttBridge
 from .device import DeviceManager
@@ -34,13 +37,21 @@ def publish_event(device_id):
     response = bridge.publish(json.dumps(request.json),device_id)
     return 'OK' if response is True else 'KO'
 
-def run(config):
+def _load_config(config_path='/etc/iot-gw/configuration.yml',default_config=None):
+    if config_path is None or not os.path.isfile(config_path):
+        result = default_config
+    else:
+        with io.open(config_path,'r') as stream:
+            result = yaml.safe_load(stream)
+    return result
+
+def init(config_path=None, default_config=None):
     global bridge, device_manager, configuration
-    configuration = config
-    bridge = MqttBridge(config['bridge'])
-    device_manager = DeviceManager(config['storage'])
+    configuration = _load_config(config_path,default_config)
+    bridge = MqttBridge(configuration['bridge'])
+    device_manager = DeviceManager(configuration['storage'])
     bridge.connect()
-    
+    return app
     
 
 def publish_event(device_id,event):
