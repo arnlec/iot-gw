@@ -25,7 +25,8 @@ setuptools.setup(
         'pyjwt==1.7.1',
         'cryptography==2.7',
         'flask==1.1.1',
-        'paho-mqtt==1.4.0'
+        'paho-mqtt==1.4.0',
+        'PyYAML==5.2'
     ],
     setup_requires=['setuptools_scm'],
     license="GPLv3",
