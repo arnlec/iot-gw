@@ -75,10 +75,12 @@ class MqttBridge:
         self.__wait_for_connection(timeout=5)
 
     def attach(self,device_id,jwt_token=None):
-        print(jwt_token)
-        print(jwt_token.decode('utf-8'))
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
         return self.publish(payload,device_id,'attach',1)
+
+    def unattach(self,device_id,jwt_token=None):
+        payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
+        return self.publish(payload,device_id,'unattach',1)    
             
     def publish(self,payload,device_id=None,type='events',qos=0):
         if not self.__is_connected:

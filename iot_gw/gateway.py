@@ -5,12 +5,24 @@ import os
 import yaml
 from flask import Flask, request
 from .bridge.gcp import MqttBridge
+from .proxy.mqtt import MqttProxy
 from .device import DeviceManager
 
 app = Flask(__name__)
 bridge = None
+proxy = None
 device_manager = None
 configuration = None
+
+def init(config_path=None, default_config=None):
+    global bridge, device_manager, configuration
+    configuration = _load_config(config_path,default_config)
+    bridge = MqttBridge(configuration['bridge'])
+    device_manager = DeviceManager(configuration['storage'])
+    bridge.connect()
+    if 'mqtt' in configuration:
+        _init_mqtt(configuration['mqtt'],_attach,_unattach,_publish_event,_publish_state)
+    return app
 
 @app.route('/',methods = ['GET'])
 def index():
@@ -23,18 +35,17 @@ def get_device(device_id):
 
 @app.route('/device/<device_id>/attach', methods = ['POST'])
 def attach(device_id):
-    device = device_manager.get_device(device_id)
-    response = bridge.attach(device_id,device.get_token(get_project_id()))
+    response = _attach(device_id)
     return 'OK' if response is True else 'KO'
 
 @app.route('/device/<device_id>/state', methods = ['POST'])
 def publish_state(device_id):
-    response = bridge.publish(json.dumps(request.json),device_id,'state')
+    response = _publish_state(json.dumps(request.json),device_id)
     return 'OK' if response is True else 'KO' 
 
 @app.route('/device/<device_id>/event', methods = ['POST'])
 def publish_event(device_id):
-    response = bridge.publish(json.dumps(request.json),device_id)
+    response = _publish_event(json.dumps(request.json),device_id)
     return 'OK' if response is True else 'KO'
 
 def _load_config(config_path='/etc/iot-gw/configuration.yml',default_config=None):
@@ -45,20 +56,31 @@ def _load_config(config_path='/etc/iot-gw/configuration.yml',default_config=None
             result = yaml.safe_load(stream)
     return result
 
-def init(config_path=None, default_config=None):
-    global bridge, device_manager, configuration
-    configuration = _load_config(config_path,default_config)
-    bridge = MqttBridge(configuration['bridge'])
-    device_manager = DeviceManager(configuration['storage'])
-    bridge.connect()
-    return app
-    
+def _init_mqtt(config,on_attach=None,on_unattach=None,on_event=None,on_state=None):
+    global proxy
+    proxy = MqttProxy(
+        'gateway',
+        config['login'],
+        config['password'],
+        on_attach=_attach,
+        on_unattach=_unattach,
+        on_state=_publish_state,
+        on_event=_publish_event)    
+    proxy.connect(config['hostname'],config['port'])
 
-def publish_event(device_id,event):
-    pass
+def _publish_event(device_id,event):
+    return bridge.publish(event,device_id)
 
-def publish_state(self,device_id,state):
-    pass
+def _publish_state(device_id,state):
+    return bridge.publish(state,device_id,'state')
+
+def _attach(device_id):
+    device = device_manager.get_device(device_id)
+    return bridge.attach(device_id,device.get_token(get_project_id()))
+
+def _unattach(device_id):
+    device = device_manager.get_device(device_id)
+    return bridge.unattach(device_id,device.get_token(get_project_id()))
 
 def get_project_id():
     return configuration['bridge']['project_id'] 
