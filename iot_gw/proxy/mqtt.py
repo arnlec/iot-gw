@@ -58,14 +58,14 @@ class MqttProxy:
         self.__client.subscribe('/event/{}'.format(device_id))
         self.__client.subscribe('/state/{}'.format(device_id))
         if not self.__attach_handler is None:
-            self.__attach_handler(payload)
+            self.__attach_handler(device_id)
 
     def __on_unattach_message(self,payload,subtopics):
         device_id=payload.decode('utf-8')
         self.__client.unsubscribe('/event/{}'.format(device_id))
         self.__client.unsubscribe('/state/{}'.format(device_id))
         if not self.__unattach_handler is None:
-            self.__unattach_handler(payload)
+            self.__unattach_handler(device_id)
 
     def __on_event_message(self,payload,subtopics):
         if not self.__event_handler is None:

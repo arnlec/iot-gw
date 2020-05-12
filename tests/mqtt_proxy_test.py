@@ -20,7 +20,7 @@ class MqttProxyTest(unittest.TestCase):
         proxy = MqttProxy('client_id','username','password',on_attach=listenerMock.on_attach)
         message = Message('/attach','device_id')
         proxy.on_message(client='client_id',userdata=None,message=message)
-        verify(listenerMock,times=1).on_attach(b'device_id')
+        verify(listenerMock,times=1).on_attach('device_id')
         verify(mqttMock,times=1).subscribe('/event/device_id')
         verify(mqttMock,times=1).subscribe('/state/device_id')
 
@@ -31,7 +31,7 @@ class MqttProxyTest(unittest.TestCase):
         proxy = MqttProxy('client_id','username','password',on_unattach=listenerMock.on_unattach)
         message = Message('/unattach','device_id')
         proxy.on_message(client='client_id',userdata=None,message=message)
-        verify(listenerMock,times=1).on_unattach(b'device_id')
+        verify(listenerMock,times=1).on_unattach('device_id')
         verify(mqttMock,times=1).unsubscribe('/event/device_id')
         verify(mqttMock,times=1).unsubscribe('/state/device_id')
 
