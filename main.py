@@ -20,6 +20,13 @@ config={
             'host':'0.0.0.0',
             'port':'8080'
         }
+    },
+    'mqtt':{
+        'login': 'gateway',
+        'password': 'P@ssw0rd',
+        'hostname': '192.168.99.11',
+        'port': '8883',
+        'ca_certs_file':'./tests/data/ca.crt'
     }
 }
 

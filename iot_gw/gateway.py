@@ -1,5 +1,6 @@
 import time
 import json
+import logging
 import io
 import os
 import yaml
@@ -22,6 +23,8 @@ def init(config_path=None, default_config=None):
     bridge.connect()
     if 'mqtt' in configuration:
         _init_mqtt(configuration['mqtt'],_attach,_unattach,_publish_event,_publish_state)
+    else:
+        logging.debug('MQTT proxy is disabled')
     return app
 
 @app.route('/',methods = ['GET'])
@@ -62,23 +65,29 @@ def _init_mqtt(config,on_attach=None,on_unattach=None,on_event=None,on_state=Non
         'gateway',
         config['login'],
         config['password'],
+        config['ca_certs_file'] if 'ca_certs_file' in config else None,
         on_attach=_attach,
         on_unattach=_unattach,
         on_state=_publish_state,
         on_event=_publish_event)    
     proxy.connect(config['hostname'],config['port'])
+    logging.debug("MQTT proxy is enable: {}".format(proxy.is_connected()))
 
 def _publish_event(device_id,event):
+    logging.debug("publish event {}/{}".format(device_id,event))
     return bridge.publish(event,device_id)
 
 def _publish_state(device_id,state):
+    logging.debug("publish state {}/{}".format(device_id,state))
     return bridge.publish(state,device_id,'state')
 
 def _attach(device_id):
+    logging.debug("attach {}".format(device_id))
     device = device_manager.get_device(device_id)
     return bridge.attach(device_id,device.get_token(get_project_id()))
 
 def _unattach(device_id):
+    logging.debug("unattach {}".format(device_id))
     device = device_manager.get_device(device_id)
     return bridge.unattach(device_id,device.get_token(get_project_id()))
 
