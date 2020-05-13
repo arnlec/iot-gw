@@ -27,6 +27,7 @@ Mqtt topics:
 * State
 * Event
 * Config
+* Commands
 
 ### Attach topic
 * **Topic name:** /attach
@@ -48,8 +49,38 @@ Mqtt topics:
 * **Payload:** an event
 * **Source:** device
 
+### Config topic
+* **Topic name:** /config/<device_id>
+* **Payload:** configuration 
+* **Source:** gateway
+
+### Commands topic
+* **Topic name:** /commands/<device_id>
+* **Payload:** command 
+* **Source:** gateway
+
 ## Interface I2
 
 Interface between Gateway and Bridge
 
 Protocol: MQTT
+
+### Event topic
+* **Topic name:** /devices/<device_id>/events
+* **Payload:** event
+* **Source:** gateway
+
+### State topic
+* **Topic name:** /devices/<device_id>/state
+* **Payload:** state
+* **Source:** gateway
+
+### Config topic
+* **Topic name:** /devices/<device_id>/config
+* **Payload:** configuration
+* **Source:** IoT platform
+
+### Commands topic
+* **Topic name:** /devices/<device_id>/commands/#
+* **Payload:** command
+* **Source:** IoT platform

@@ -41,6 +41,20 @@ class MqttProxy:
     def is_connected(self):
         return self.__is_connected
 
+    def config(self,device_id,configuration):
+        logging.debug("Config device {}: {}".format(device_id,configuration))
+        self.__client.publish(
+            topic="/config/{}".format(device_id),
+            payload=configuration,
+            qos=0)
+
+    def commands(self,device_id,command):
+        logging.debug("Commands device {}: {}".format(device_id,command))
+        self.__client.publish(
+            topic="/commands/{}".format(device_id),
+            payload=command,
+            qos=0)
+
     def on_message(self,client,userdata,message):
         payload = str(message.payload.decode('utf-8'))
         logging.debug(

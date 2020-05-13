@@ -51,7 +51,7 @@ class MqttBridge:
       - bridge_hostname
       - bridge_port
     """
-    def __init__(self,config):
+    def __init__(self,config,on_config=None,on_commands=None):
         self.__is_connected=False
         self.__config=config
         self.__client=create_mqtt_client(
@@ -65,6 +65,11 @@ class MqttBridge:
         self.__client.on_connect = self.__on_connect
         self.__client.on_disconnect = self.__on_disconnect
         self.__client.on_message = self.__on_message
+        self.__topic_handlers = {
+            'config' : on_config,
+            'commands' : on_commands,
+            'errors' : self.__on_errors_handler
+        }
     
     def connect(self):
         self.__client.connect_async(
@@ -76,11 +81,19 @@ class MqttBridge:
 
     def attach(self,device_id,jwt_token=None):
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
-        return self.publish(payload,device_id,'attach',1)
+        attached = self.publish(payload,device_id,'attach',1)
+        self.__client.subscribe('/devices/{}/config'.format(device_id), qos=1)
+        self.__client.subscribe('/devices/{}/commands/#'.format(device_id), qos=1)
+        self.__client.subscribe('/devices/{}/errors'.format(device_id), qos=0)
+        return attached
 
     def unattach(self,device_id,jwt_token=None):
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
-        return self.publish(payload,device_id,'unattach',1)    
+        unattached = self.publish(payload,device_id,'unattach',1)  
+        self.__client.unsubscribe('/devices/{}/config'.format(device_id))
+        self.__client.unsubscribe('/devices/{}/commands/#'.format(device_id))
+        self.__client.unsubscribe('/devices/{}/errors'.format(device_id)) 
+        return unattached 
             
     def publish(self,payload,device_id=None,type='events',qos=0):
         if not self.__is_connected:
@@ -122,6 +135,16 @@ class MqttBridge:
             'Received message \'{}\' on topic \'{}\' with Qos {}'
             .format(payload, message.topic, str(message.qos))
         )
+        topics= list(filter(lambda t : len(t) > 0,message.topic.split('/')))
+        device_id = topics[1]
+        topic = topics[2]
+        if topic in self.__topic_handlers:
+            handler =self.__topic_handlers[topic]
+            if not handler is None:
+                handler(device_id,message.payload)
+
+    def __on_errors_handler(self,device_id,payload):
+        pass
     
 
     

@@ -35,6 +35,28 @@ class MqttProxyTest(unittest.TestCase):
         verify(mqttMock,times=1).unsubscribe('/event/device_id')
         verify(mqttMock,times=1).unsubscribe('/state/device_id')
 
+    def test_config(self):
+        mqttMock = mock()
+        when(paho.mqtt.client).Client(client_id='client_id').thenReturn(mqttMock)
+        proxy = MqttProxy('client_id','username','password')
+        proxy.config('device_id','configuration')
+        verify(mqttMock,times=1).publish(
+            topic='/config/device_id',
+            payload='configuration',
+            qos=0
+        )
+    
+    def test_commands(self):
+        mqttMock = mock()
+        when(paho.mqtt.client).Client(client_id='client_id').thenReturn(mqttMock)
+        proxy = MqttProxy('client_id','username','password')
+        proxy.commands('device_id','command')
+        verify(mqttMock,times=1).publish(
+            topic='/commands/device_id',
+            payload='command',
+            qos=0
+        )
+
     def test_state_topic(self):
         listenerMock = mock()
         proxy = MqttProxy('client_id','username','password',on_state=listenerMock.on_state)
