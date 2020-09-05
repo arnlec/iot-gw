@@ -6,6 +6,7 @@ config={
         'key_pair_path' : './tests/data'
     },
     'bridge':{
+        'adapter': 'gcp',
         'project_id': 'iot-dev-260617',
         'region': 'europe-west1',
         'registry_id': 'mylab',

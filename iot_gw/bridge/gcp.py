@@ -5,7 +5,7 @@ import jwt
 import ssl
 import paho.mqtt.client as mqtt
 import logging
-
+from .adapter import BridgeAdapter
 
 """
 Bridge client for Google Cloud Platform
@@ -37,7 +37,7 @@ def create_mqtt_client(project_id,region,registry_id, device_id, private_key_fil
     client.tls_set(ca_certs =ca_certs_file, tls_version= ssl.PROTOCOL_TLSv1_2)
     return client
 
-class MqttBridge:
+class MqttBridge(BridgeAdapter):
     """
     MQTT bridge client for Google Cloud Platform 
 
@@ -52,6 +52,7 @@ class MqttBridge:
       - bridge_port
     """
     def __init__(self,config,on_config=None,on_commands=None):
+        super().__init__('gcp_mqtt_bridge')
         self.__is_connected=False
         self.__config=config
         self.__client=create_mqtt_client(

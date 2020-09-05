@@ -5,7 +5,7 @@ import io
 import os
 import yaml
 from flask import Flask, request
-from .bridge.gcp import MqttBridge
+from .bridge import bridge_adapter_factory
 from .proxy.mqtt import MqttProxy
 from .device import DeviceManager
 
@@ -18,7 +18,9 @@ configuration = None
 def init(config_path=None, default_config=None):
     global bridge, device_manager, configuration
     configuration = _load_config(config_path,default_config)
-    bridge = MqttBridge(configuration['bridge'],on_config=_on_config,on_commands=_on_commands)
+    bridge = bridge_adapter_factory.create(configuration['bridge'],
+        on_config_handler=_on_config,
+        on_commands_handler=_on_commands)
     device_manager = DeviceManager(configuration['storage'])
     bridge.connect()
     if 'mqtt' in configuration:
