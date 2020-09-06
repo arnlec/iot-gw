@@ -77,11 +77,11 @@ def _init_mqtt(config,on_attach=None,on_unattach=None,on_event=None,on_state=Non
 
 def _publish_event(device_id,event):
     logging.debug("publish event {}/{}".format(device_id,event))
-    return bridge.publish(event,device_id,'events')
+    return bridge.publish_event(event,device_id)
 
 def _publish_state(device_id,state):
     logging.debug("publish state {}/{}".format(device_id,state))
-    return bridge.publish(state,device_id,'state')
+    return bridge.publish_state(state,device_id)
 
 def _attach(device_id):
     logging.debug("attach {}".format(device_id))

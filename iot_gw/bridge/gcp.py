@@ -103,7 +103,13 @@ class MqttBridge(BridgeAdapter):
         self.__client.unsubscribe('/devices/{}/errors'.format(device_id)) 
         return unattached 
             
-    def publish(self,payload,device_id=None,type='events',qos=0):
+    def publish_event(self,payload,device_id=None,qos=0):
+        self.__publish(payload,device_id,'events',qos)
+
+    def publish_state(self,payload,device_id=None,qos=0):
+        self.__publish(payload,device_id,'state',qos) 
+
+    def __publish(self,payload,device_id=None,type='events',qos=0):
         if not self.__is_connected:
             self.connect()
         result = self.__client.publish(
