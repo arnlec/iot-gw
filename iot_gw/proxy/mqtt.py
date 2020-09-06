@@ -6,21 +6,26 @@ import paho
 
 
 class MqttProxy:
-    def __init__(self,client_id,username,password,ca_certs_file=None,on_attach=None,on_unattach=None,on_event=None,on_state=None):
-        self.__client_id=client_id
-        self.__client=paho.mqtt.client.Client(client_id=client_id)
-        self.__client.username_pw_set(username=username,password=password)
-        if not ca_certs_file is None:
+    def __init__(self,config,adapter):
+        self.__client_id='mqtt_proxy'
+        self.__username=config['login']
+        self.__password=config['password']
+        self.__hostname=config['hostname']
+        self.__port=config['port']
+        self.__ca_certs_file = config['ca_certs_file'] if 'ca_certs_file' in config else None
+        self.__client=paho.mqtt.client.Client(client_id=self.__client_id)
+        self.__client.username_pw_set(username=self.__username,password=self.__password)
+        if not self.__ca_certs_file is None:
             logging.debug("Enable TLS")
-            self.__client.tls_set(ca_certs_file,tls_version= ssl.PROTOCOL_TLSv1_2)
+            self.__client.tls_set(self.__ca_certs_file,tls_version= ssl.PROTOCOL_TLSv1_2)
         self.__client.enable_logger(logging)
         self.__client.on_connect=self.__on_connect
         self.__client.on_disconnect=self.__on_disconnect
         self.__client.on_message=self.on_message
-        self.__attach_handler=on_attach
-        self.__unattach_handler=on_unattach
-        self.__event_handler=on_event
-        self.__state_handler=on_state
+        self.__attach_handler=adapter.attach
+        self.__unattach_handler=adapter.unattach
+        self.__event_handler=adapter.publish_event
+        self.__state_handler=adapter.publish_state
         self.__is_connected=False
         self.__topicHandlers={
             'attach' : self.__on_attach_message,
@@ -29,13 +34,13 @@ class MqttProxy:
             'event' : self.__on_event_message
         }
         
-    def connect(self,hostname='localhost',port='1883',timeout=5,async_connect=True):
+    def connect(self,timeout=5,async_connect=True):
         if async_connect:
-            self.__client.connect_async(hostname,int(port))
+            self.__client.connect_async(self.__hostname,int(self.__port))
             self.__client.loop_start()
             self.__wait_for_connection(timeout)
         else:
-            self.__client.connect(hostname,port)
+            self.__client.connect(self.__hostname,self.__port)
         return self.is_connected()
 
     def is_connected(self):
