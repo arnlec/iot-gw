@@ -25,8 +25,8 @@ def init(config_path=None, default_config=None):
     bridge.connect()
     if 'mqtt' in configuration:
         proxy=MqttProxy(configuration['mqtt'],bridge)
-        proxy.connect()
-        logging.debug("MQTT proxy is enable: {}".format(proxy.is_connected()))
+        proxy.start()
+        logging.debug("MQTT proxy is enable: {}".format(proxy.is_ready()))
     else:
         logging.debug('MQTT proxy is disabled')
     return app
@@ -47,20 +47,6 @@ def _load_config(config_path='/etc/iot-gw/configuration.yml',default_config=None
         with io.open(config_path,'r') as stream:
             result = yaml.safe_load(stream)
     return result
-
-def _init_mqtt(config,adapter):
-    global proxy
-    proxy = MqttProxy(
-        config['login'],
-        config['password'],
-        config['ca_certs_file'] if 'ca_certs_file' in config else None,
-        on_attach=adapter.attach,
-        on_unattach=adapter.unattach,
-        on_state=adapter.publish_state,
-        on_event=adapter.publish_event)    
-    proxy.connect(config['hostname'],config['port'])
-    
-
 
 def _on_config(device_id,configuration):
     global proxy

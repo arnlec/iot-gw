@@ -3,10 +3,11 @@ import ssl
 import logging
 from enum import Enum
 import paho
+from .adapter import ProxyAdapter
 
-
-class MqttProxy:
+class MqttProxy(ProxyAdapter):
     def __init__(self,config,adapter):
+        super().__init__('mqtt',adapter)
         self.__client_id='mqtt_proxy'
         self.__username=config['login']
         self.__password=config['password']
@@ -22,10 +23,6 @@ class MqttProxy:
         self.__client.on_connect=self.__on_connect
         self.__client.on_disconnect=self.__on_disconnect
         self.__client.on_message=self.on_message
-        self.__attach_handler=adapter.attach
-        self.__unattach_handler=adapter.unattach
-        self.__event_handler=adapter.publish_event
-        self.__state_handler=adapter.publish_state
         self.__is_connected=False
         self.__topicHandlers={
             'attach' : self.__on_attach_message,
@@ -34,6 +31,9 @@ class MqttProxy:
             'event' : self.__on_event_message
         }
         
+    def start(self):
+        return self.connect()
+
     def connect(self,timeout=5,async_connect=True):
         if async_connect:
             self.__client.connect_async(self.__hostname,int(self.__port))
@@ -41,6 +41,9 @@ class MqttProxy:
             self.__wait_for_connection(timeout)
         else:
             self.__client.connect(self.__hostname,self.__port)
+        return self.is_connected()
+
+    def is_ready(self):
         return self.is_connected()
 
     def is_connected(self):
@@ -76,23 +79,19 @@ class MqttProxy:
         device_id=payload.decode('utf-8')
         self.__client.subscribe('/event/{}'.format(device_id))
         self.__client.subscribe('/state/{}'.format(device_id))
-        if not self.__attach_handler is None:
-            self.__attach_handler(device_id)
+        self.attach_handler(device_id)
 
     def __on_unattach_message(self,payload,subtopics):
         device_id=payload.decode('utf-8')
         self.__client.unsubscribe('/event/{}'.format(device_id))
         self.__client.unsubscribe('/state/{}'.format(device_id))
-        if not self.__unattach_handler is None:
-            self.__unattach_handler(device_id)
+        self.unattach_handler(device_id)
 
     def __on_event_message(self,payload,subtopics):
-        if not self.__event_handler is None:
-            self.__event_handler(subtopics[0],payload)
+        self.event_handler(subtopics[0],payload)
 
     def __on_state_message(self,payload,subtopics):
-        if not self.__state_handler is None:
-            self.__state_handler(subtopics[0],payload)
+        self.state_handler(subtopics[0],payload)
 
     def __on_connect(self,client,userdata,flags,rc):
         logging.debug("MQTT client %s connection is up" % self.__client_id)
