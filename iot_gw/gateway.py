@@ -18,10 +18,10 @@ configuration = None
 def init(config_path=None, default_config=None):
     global bridge, device_manager, configuration
     configuration = _load_config(config_path,default_config)
-    bridge = bridge_adapter_factory.create(configuration['bridge'],
+    device_manager = DeviceManager(configuration['storage'])
+    bridge = bridge_adapter_factory.create(device_manager,configuration['bridge'],
         on_config_handler=_on_config,
         on_commands_handler=_on_commands)
-    device_manager = DeviceManager(configuration['storage'])
     bridge.connect()
     if 'mqtt' in configuration:
         _init_mqtt(configuration['mqtt'],_attach,_unattach,_publish_event,_publish_state)
@@ -77,7 +77,7 @@ def _init_mqtt(config,on_attach=None,on_unattach=None,on_event=None,on_state=Non
 
 def _publish_event(device_id,event):
     logging.debug("publish event {}/{}".format(device_id,event))
-    return bridge.publish(event,device_id)
+    return bridge.publish(event,device_id,'events')
 
 def _publish_state(device_id,state):
     logging.debug("publish state {}/{}".format(device_id,state))
@@ -85,13 +85,11 @@ def _publish_state(device_id,state):
 
 def _attach(device_id):
     logging.debug("attach {}".format(device_id))
-    device = device_manager.get_device(device_id)
-    return bridge.attach(device_id,device.get_token(get_project_id()))
+    return bridge.attach(device_id)
 
 def _unattach(device_id):
     logging.debug("unattach {}".format(device_id))
-    device = device_manager.get_device(device_id)
-    return bridge.unattach(device_id,device.get_token(get_project_id()))
+    return bridge.unattach(device_id)
 
 def _on_config(device_id,configuration):
     global proxy
@@ -101,6 +99,4 @@ def _on_commands(device_id,commands):
     global proxy
     proxy.commands(device_id,commands)
 
-def get_project_id():
-    return configuration['bridge']['project_id'] 
 

@@ -3,8 +3,15 @@ class BridgeAdapter:
         Bridge Adapter interface
     """
 
-    def __init__(self,adapter):
-        self._adapter=adapter
+    def __init__(self,adapter,device_manager):
+        self.__adapter=adapter
+        self.__device_manager=device_manager
+
+    def get_adapter(self):
+        return self.__adapter
+
+    def get_device_manager(self):
+        self.__device_manager
 
     def connect(self):
         """
@@ -14,7 +21,7 @@ class BridgeAdapter:
         -------
             True or False
         """
-        raise NotImplementedError("Not implemented method connect for bridge adapter: %s" % self._adapter)
+        raise NotImplementedError("Not implemented method connect for bridge adapter: %s" % self.get_adapter())
 
     def attach(self,device_id):
         """
@@ -29,7 +36,7 @@ class BridgeAdapter:
         -------
             True or False
         """
-        raise NotImplementedError("Not implemented method attach for bridge adapter: %s" % self._adapter)
+        raise NotImplementedError("Not implemented method attach for bridge adapter: %s" % self.get_adapter())
 
     def unattach(self,device_id):
         """

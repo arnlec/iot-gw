@@ -16,7 +16,6 @@ class Device:
     def __init__(self,device_id,key_folder=None):
         self.device_id = device_id
         self.status = DeviceStatus.UNKNOWN
-        self.__token = None
         if not self.__key_pair_is_available(key_folder):
             self.__generate_key_pair()
         else:
@@ -33,11 +32,6 @@ class Device:
 
     def get_private_key(self):
         return self.__private_key
-
-    def get_token(self,project_id,minutes=60,seconds=0):
-        if not self.__token_is_available():
-            self.__generate_token(project_id,minutes,seconds)
-        return self.__encrypted_token
 
     def dump(self, path):
         self.__dump(
@@ -102,26 +96,6 @@ class Device:
             public_key_path = self.__build_public_key_path(path)
             private_key_path = self.__build_private_key_path(path)
             return os.path.isfile(self.__build_public_key_path(path)) and os.path.isfile(private_key_path)
-
-    def __token_is_available(self):
-        now = datetime.datetime.now()
-        exp = datetime.datetime.fromtimestamp(self.__token['exp'] if self.__token != None else 0)
-        if (self.__token) is None or ( now >= exp):
-            is_available = False
-        else:
-            is_available = True
-        return is_available
-
-    def __generate_token(self,project_id,minutes=0,seconds=0):
-        self.__token = {
-            'iat': datetime.datetime.utcnow(),
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=minutes,seconds=seconds),
-            'aud' : project_id
-        }
-        self.__encrypted_token=jwt.encode(
-            self.__token,
-            self.get_private_key(),
-            algorithm='RS256')
 
 
 class DeviceManager:

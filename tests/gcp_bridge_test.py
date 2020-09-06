@@ -44,7 +44,7 @@ class TestGcpBridge(unittest.TestCase):
         self.assertIsNotNone(client)
 
     def test_connect_mqtt_bridge(self):
-        bridge = MqttBridge(mqtt_bridge_config)
+        bridge = MqttBridge(None,mqtt_bridge_config)
         try:
             bridge.connect()
         except RuntimeError:

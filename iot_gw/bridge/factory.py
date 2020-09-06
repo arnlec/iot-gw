@@ -18,14 +18,23 @@ class BridgeAdapterFactory:
             'gcp_mqtt': GCPMqttBridge
         }
 
-    def create(self,config,on_config_handler=None,on_commands_handler=None):
+    def create(self,device_manager,config,on_config_handler=None,on_commands_handler=None):
         """
         Create a BridgeAdapter instance
 
         Parameters
         ----------
+        device_manager : DeviceManager
+            Device manager component
+
         config : dict
             dictionnary with properties which are used to establish the connection.
+        
+        on_config_handler : method, optional
+            Method which treats configuration message received from bridge
+
+        on_commands_handler : method, optional
+            Method which treats commands message received from bridge
 
         Returns
         -------
@@ -42,7 +51,7 @@ class BridgeAdapterFactory:
             raise RuntimeError("Undefined bridge adapter in configuration")
         adapter = None
         try:
-            adapter = self.__adapters[adapter_id](config,
+            adapter = self.__adapters[adapter_id](device_manager,config,
                 on_config=on_config_handler,
                 on_commands=on_commands_handler)
         except KeyError:

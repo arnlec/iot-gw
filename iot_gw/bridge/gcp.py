@@ -12,6 +12,11 @@ Bridge client for Google Cloud Platform
 """
 
 def create_jwt_token(project_id,private_key_file,algorithm='RS256',minutes=60):
+    """
+    Create a JWT Token
+
+    JWT token are use by MQTT bridge for device authentication
+    """
     token = {
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=minutes),
@@ -51,8 +56,8 @@ class MqttBridge(BridgeAdapter):
       - bridge_hostname
       - bridge_port
     """
-    def __init__(self,config,on_config=None,on_commands=None):
-        super().__init__('gcp_mqtt_bridge')
+    def __init__(self,device_manager,config,on_config=None,on_commands=None):
+        super().__init__('gcp_mqtt',device_manager)
         self.__is_connected=False
         self.__config=config
         self.__client=create_mqtt_client(
@@ -80,7 +85,8 @@ class MqttBridge(BridgeAdapter):
         self.__client.loop_start()
         self.__wait_for_connection(timeout=5)
 
-    def attach(self,device_id,jwt_token=None):
+    def attach(self,device_id):
+        jwt_token = self.__get_jwt_token(device_id)
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
         attached = self.publish(payload,device_id,'attach',1)
         self.__client.subscribe('/devices/{}/config'.format(device_id), qos=1)
@@ -88,7 +94,8 @@ class MqttBridge(BridgeAdapter):
         self.__client.subscribe('/devices/{}/errors'.format(device_id), qos=0)
         return attached
 
-    def unattach(self,device_id,jwt_token=None):
+    def unattach(self,device_id):
+        jwt_token = self.__get_jwt_token(device_id)
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
         unattached = self.publish(payload,device_id,'unattach',1)  
         self.__client.unsubscribe('/devices/{}/config'.format(device_id))
@@ -146,7 +153,19 @@ class MqttBridge(BridgeAdapter):
 
     def __on_errors_handler(self,device_id,payload):
         pass
-    
+
+    def __get_jwt_token(self,device_id):
+        device = self.get_device_manager().get_device(device_id)
+        token = {
+            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60,seconds=0),
+            'aud' : self.__config['project_id']
+        }
+        return jwt.encode(
+            token,
+            device.get_private_key(),
+            algorithm='RS256')
+        
 
     
     
