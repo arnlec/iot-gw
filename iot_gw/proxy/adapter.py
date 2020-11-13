@@ -72,8 +72,8 @@ class ProxyAdapter:
         self.__adapter.unattach(device_id)
         
     def event_handler(self,device_id,event):
-        self.__adapter.publish_event(device_id,event)
+        self.__adapter.publish_event(event,device_id)
         
     def state_handler(self,device_id,event):
-        self.__adapter.publish_state(device_id,event)
+        self.__adapter.publish_state(event,device_id)
 

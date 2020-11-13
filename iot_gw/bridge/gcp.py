@@ -88,7 +88,7 @@ class MqttBridge(BridgeAdapter):
     def attach(self,device_id):
         jwt_token = self.__get_jwt_token(device_id)
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
-        attached = self.publish(payload,device_id,'attach',1)
+        attached = self.__publish(payload,device_id,'attach',1)
         self.__client.subscribe('/devices/{}/config'.format(device_id), qos=1)
         self.__client.subscribe('/devices/{}/commands/#'.format(device_id), qos=1)
         self.__client.subscribe('/devices/{}/errors'.format(device_id), qos=0)
@@ -97,7 +97,7 @@ class MqttBridge(BridgeAdapter):
     def unattach(self,device_id):
         jwt_token = self.__get_jwt_token(device_id)
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
-        unattached = self.publish(payload,device_id,'unattach',1)  
+        unattached = self.__publish(payload,device_id,'unattach',1)  
         self.__client.unsubscribe('/devices/{}/config'.format(device_id))
         self.__client.unsubscribe('/devices/{}/commands/#'.format(device_id))
         self.__client.unsubscribe('/devices/{}/errors'.format(device_id)) 

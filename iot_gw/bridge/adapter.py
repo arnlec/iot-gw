@@ -11,7 +11,7 @@ class BridgeAdapter:
         return self.__adapter
 
     def get_device_manager(self):
-        self.__device_manager
+        return self.__device_manager
 
     def connect(self):
         """
