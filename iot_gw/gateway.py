@@ -22,13 +22,13 @@ def init(config_path=None, default_config=None):
     bridge = bridge_adapter_factory.create(device_manager,configuration['bridge'],
         on_config_handler=_on_config,
         on_commands_handler=_on_commands)
-    bridge.connect()
     if 'mqtt' in configuration:
         proxy=MqttProxy(configuration['mqtt'],bridge)
         proxy.start()
         logging.debug("MQTT proxy is enable: {}".format(proxy.is_ready()))
     else:
         logging.debug('MQTT proxy is disabled')
+    bridge.connect()
     return app
 
 @app.route('/',methods = ['GET'])
