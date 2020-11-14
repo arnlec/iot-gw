@@ -68,14 +68,14 @@ class MqttProxyTest(unittest.TestCase):
         proxy = MqttProxy(mqtt_config,listenerMock)
         message = Message('/state/device_id','state')
         proxy.on_message(client='client_id',userdata=None,message=message)
-        verify(listenerMock,times=1).publish_state('device_id',b'state')
+        verify(listenerMock,times=1).publish_state(b'state','device_id')
 
     def test_event_topic(self):
         listenerMock = mock()
         proxy = MqttProxy(mqtt_config,listenerMock)
         message = Message('/event/device_id','event')
         proxy.on_message(client='client_id',userdata=None,message=message)
-        verify(listenerMock,times=1).publish_event('device_id',b'event')
+        verify(listenerMock,times=1).publish_event(b'event','device_id')
 
 
 
