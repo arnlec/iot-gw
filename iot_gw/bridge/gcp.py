@@ -131,7 +131,7 @@ class MqttBridge(BridgeAdapter):
             time.sleep(1)
         if not self.__is_connected:
             raise RuntimeError('Could not connect to MQTT bridge.')
-        logging.debug("wait_for_connection terminated %s" % self.is_connected)
+        logging.debug("wait_for_connection terminated %s" % self.is_connected())
         
     def __on_connect(self,client,userdata,flags,rc):
         logging.debug("MQTT bridge connection is up")

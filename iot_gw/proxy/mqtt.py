@@ -113,5 +113,5 @@ class MqttProxy(ProxyAdapter):
             time.sleep(1)
         if not self.__is_connected:
             raise RuntimeError('Could not connect to MQTT server.')
-        logging.debug("wait_for_connection terminated %s" % self.is_connected)
+        logging.debug("wait_for_connection terminated %s" % self.is_connected())
 
