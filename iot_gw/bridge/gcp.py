@@ -83,7 +83,16 @@ class MqttBridge(BridgeAdapter):
             self.__config['bridge_port']
         )
         self.__client.loop_start()
-        self.__wait_for_connection(timeout=5)
+        self.__wait_for_connection(timeout=0)
+
+    def reconnect(self):
+        logging.debug("Trying reconnect MQTT bridge")
+        self.__client.end()
+        self.__client.username_pw_set(
+            username = 'unused',
+            password = create_jwt_token(self.__config['project_id'],self.__config['private_key_file'])
+        )
+        self.connect()
 
     def attach(self,device_id):
         jwt_token = self.__get_jwt_token(device_id)
@@ -142,6 +151,7 @@ class MqttBridge(BridgeAdapter):
     def __on_disconnect(self,client,userdate,rc):
         logging.debug("MQTT bridge connection is down")
         self.__is_connected=False
+        self.reconnect()
 
     def __on_message(self, client, userdata, message):
         payload = str(message.payload.decode('utf-8'))
