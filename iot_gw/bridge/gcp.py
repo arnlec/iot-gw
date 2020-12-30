@@ -83,7 +83,7 @@ class MqttBridge(BridgeAdapter):
             self.__config['bridge_port']
         )
         self.__client.loop_start()
-        self.__wait_for_connection(timeout=0)
+        self.__wait_for_connection(timeout=5)
 
     def reconnect(self):
         logging.debug("Trying reconnect MQTT bridge")
