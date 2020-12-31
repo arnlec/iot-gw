@@ -87,7 +87,6 @@ class MqttBridge(BridgeAdapter):
 
     def reconnect(self):
         logging.debug("Trying reconnect MQTT bridge")
-        self.__client.end()
         self.__client.username_pw_set(
             username = 'unused',
             password = create_jwt_token(self.__config['project_id'],self.__config['private_key_file'])
