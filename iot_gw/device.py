@@ -1,6 +1,7 @@
 import datetime
 import os
 import enum
+import re
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
@@ -106,5 +107,8 @@ class DeviceManager:
     def get_device(self,device_id):
         return Device(device_id,self.__key_pair_path)
 
-
-    
+    def get_devices(self):
+        listdir = os.listdir(self.__key_pair_path)
+        files = list(filter(lambda f: os.path.isfile(os.path.join(self.__key_pair_path,f)), listdir ))
+        matches = list(map(lambda f: re.search('^(.*)_private.pem$',f),files))
+        return list(map(lambda m: m.group(1),list(filter(lambda s: s, matches))))    

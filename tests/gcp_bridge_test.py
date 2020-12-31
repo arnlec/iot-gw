@@ -3,6 +3,7 @@ import jwt
 import logging
 from iot_gw.bridge.gcp import create_jwt_token, create_mqtt_client, MqttBridge
 import os 
+from mockito import mock, verify, when
 dir_path = os.path.dirname(os.path.realpath(__file__))
 gw_private_key = os.path.join(dir_path,'data/gw_private.pem')
 gw_public_key = os.path.join(dir_path,'data/gw_public.pem')
@@ -44,7 +45,9 @@ class TestGcpBridge(unittest.TestCase):
         self.assertIsNotNone(client)
 
     def test_connect_mqtt_bridge(self):
-        bridge = MqttBridge(None,mqtt_bridge_config)
+        device_manager = mock()
+        when(device_manager).get_devices().thenReturn([])
+        bridge = MqttBridge(device_manager,mqtt_bridge_config)
         try:
             bridge.connect()
         except RuntimeError:

@@ -82,22 +82,21 @@ class MqttBridge(BridgeAdapter):
         self.__client.on_message = self.__on_message
     
     def connect(self):
+        self.__init_mqtt_client()
         self.__client.connect_async(
             self.__config['bridge_hostname'],
             self.__config['bridge_port']
         )
         self.__client.loop_start()
         self.__wait_for_connection(timeout=5)
+        self.__attach_all()
 
     def reconnect(self):
-        logging.debug("Trying reconnect MQTT bridge")
-        self.__client.username_pw_set(
-            username = 'unused',
-            password = create_jwt_token(self.__config['project_id'],self.__config['private_key_file'])
-        )
-        self.__client.reconnect()
-
+        self.__client.disconnect()
+        self.connect()
+        
     def attach(self,device_id):
+        logging.debug("attach %s" % device_id)
         jwt_token = self.__get_jwt_token(device_id)
         payload = json.dumps({"authorization" : jwt_token.decode('utf-8')}) if jwt_token is not None else None
         attached = self.__publish(payload,device_id,'attach',1)
@@ -156,6 +155,11 @@ class MqttBridge(BridgeAdapter):
         self.__is_connected=False
         self.reconnect()
 
+    def __attach_all(self):
+        for device_id in self.get_device_manager().get_devices():
+            if device_id != 'gw':
+                self.attach(device_id)
+
     def __on_message(self, client, userdata, message):
         payload = str(message.payload.decode('utf-8'))
         logging.debug(
@@ -184,7 +188,8 @@ class MqttBridge(BridgeAdapter):
             token,
             device.get_private_key(),
             algorithm='RS256')
-        
+
+
 
     
     

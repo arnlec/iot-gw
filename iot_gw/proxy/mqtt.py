@@ -6,9 +6,10 @@ import paho
 from .adapter import ProxyAdapter
 
 class MqttProxy(ProxyAdapter):
-    def __init__(self,config,adapter):
+    def __init__(self,config,adapter,devices=[]):
         super().__init__('mqtt',adapter)
         self.__client_id='mqtt_proxy'
+        self.__devices=devices
         self.__username=config['login']
         self.__password=config['password']
         self.__hostname=config['hostname']
@@ -97,6 +98,10 @@ class MqttProxy(ProxyAdapter):
         logging.debug("MQTT client %s connection is up" % self.__client_id)
         self.__client.subscribe('/attach',qos=1)
         self.__client.subscribe('/unattach',qos=1)
+        for device_id in self.__devices:
+            if device_id != 'gw':
+                self.__client.subscribe('/event/{}'.format(device_id))
+                self.__client.subscribe('/state/{}'.format(device_id))
         self.__is_connected=True
 
     def __on_disconnect(self,client,userdate,rc):
