@@ -61,22 +61,25 @@ class MqttBridge(BridgeAdapter):
         super().__init__('gcp_mqtt',device_manager)
         self.__is_connected=False
         self.__config=config
-        self.__client=create_mqtt_client(
-            config['project_id'],
-            config['region'],
-            config['registry_id'],
-            config['device_id'],
-            config['private_key_file'],
-            config['ca_certs_file']
-        )
-        self.__client.on_connect = self.__on_connect
-        self.__client.on_disconnect = self.__on_disconnect
-        self.__client.on_message = self.__on_message
+        self.__init_mqtt_client()
         self.__topic_handlers = {
             'config' : on_config,
             'commands' : on_commands,
             'errors' : self.__on_errors_handler
         }
+
+    def __init_mqtt_client(self):
+        self.__client=create_mqtt_client(
+            self.__config['project_id'],
+            self.__config['region'],
+            self.__config['registry_id'],
+            self.__config['device_id'],
+            self.__config['private_key_file'],
+            self.__config['ca_certs_file']
+        )
+        self.__client.on_connect = self.__on_connect
+        self.__client.on_disconnect = self.__on_disconnect
+        self.__client.on_message = self.__on_message
     
     def connect(self):
         self.__client.connect_async(
@@ -92,7 +95,7 @@ class MqttBridge(BridgeAdapter):
             username = 'unused',
             password = create_jwt_token(self.__config['project_id'],self.__config['private_key_file'])
         )
-        self.connect()
+        self.__client.reconnect()
 
     def attach(self,device_id):
         jwt_token = self.__get_jwt_token(device_id)
