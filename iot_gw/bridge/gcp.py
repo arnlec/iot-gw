@@ -17,6 +17,7 @@ def create_jwt_token(project_id,private_key_file,algorithm='RS256',minutes=60):
 
     JWT token are use by MQTT bridge for device authentication
     """
+    logging.debug("Create jwt token expire in %s minutes" % minutes)
     token = {
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=minutes),
