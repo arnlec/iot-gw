@@ -10,6 +10,7 @@ before_script:
 script:
 - python -m unittest discover ./tests -p "*_test.py"
 - python setup.py bdist_wheel
+- rm tests/data/*_private.pem
 deploy:
 - provider: pypi
   user: __token__
