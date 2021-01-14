@@ -6,6 +6,7 @@ install:
 - pip install -r requirements.txt
 before_script:
 - echo $gpg_password | gpg --passphrase-fd 0 tests/data/gw_private.pem.gpg
+- echo $gpg_password | gpg --passphrase-fd 0 tests/data/dev-1_private.pem.gpg
 script:
 - python -m unittest discover ./tests -p "*_test.py"
 - python setup.py bdist_wheel
